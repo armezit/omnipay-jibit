@@ -1,0 +1,32 @@
+{
+    "name": "armezit/omnipay-jibit",
+    "type": "library",
+    "description": "Jibit driver for the Omnipay payment processing library",
+    "keywords": [
+        "gateway",
+        "merchant",
+        "omnipay",
+        "pay",
+        "payment",
+        "jibit"
+    ],
+    "homepage": "https://github.com/armezit/omnipay-jibit",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Armin Rezayati",
+            "email": "armin.rezayati@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "Omnipay\\Jibit\\" : "src/" }
+    },
+    "require": {
+        "omnipay/common": "^3"
+    },
+    "require-dev": {
+        "omnipay/tests": "^3",
+        "squizlabs/php_codesniffer": "^3"
+    },
+    "prefer-stable": true
+}
