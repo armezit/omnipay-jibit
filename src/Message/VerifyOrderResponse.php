@@ -16,26 +16,34 @@ class VerifyOrderResponse extends AbstractResponse
     /**
      * @inheritDoc
      */
+    public function getTransactionReference()
+    {
+        return $this->request->getTransactionReference();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function isSuccessful()
     {
         return $this->getCode() === 200 && $this->data['status'] === 'Successful';
     }
 
     /**
-     * Check if order is in Unknown status
-     * Note that, in case of Unknown status, you must inquiry the order later
+     * @inheritDoc
+     */
+    public function isCancelled()
+    {
+        return $this->getCode() === 200 && $this->data['status'] === 'Failed';
+    }
+
+    /**
+     * In case of pending, you must inquiry the order later
      * @return bool
      */
-    public function isUnknownStatus(): bool
+    public function isPending()
     {
         return $this->getCode() === 200 && $this->data['status'] === 'Unknown';
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getTransactionReference()
-    {
-        return $this->request->getTransactionReference();
-    }
 }

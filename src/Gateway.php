@@ -10,6 +10,7 @@ namespace Omnipay\Jibit;
 use Omnipay\Common\AbstractGateway;
 use Omnipay\Common\Message\AbstractRequest;
 use Omnipay\Common\Message\RequestInterface;
+use Omnipay\Jibit\Message\InquiryOrderRequest;
 use Omnipay\Jibit\Message\VerifyOrderRequest;
 use Omnipay\Jibit\Message\CreateOrderRequest;
 
@@ -24,7 +25,7 @@ class Gateway extends AbstractGateway
      * This can be used by carts to get the display name for each gateway.
      * @return string
      */
-    public function getName()
+    public function getName(): string
     {
         return 'Jibit';
     }
@@ -32,7 +33,7 @@ class Gateway extends AbstractGateway
     /**
      * @return array
      */
-    public function getDefaultParameters()
+    public function getDefaultParameters(): array
     {
         return [
             'testMode' => false,
@@ -59,7 +60,7 @@ class Gateway extends AbstractGateway
     /**
      * @return string
      */
-    public function getApiKey()
+    public function getApiKey(): ?string
     {
         return $this->getParameter('apiKey');
     }
@@ -67,7 +68,7 @@ class Gateway extends AbstractGateway
     /**
      * @return string
      */
-    public function getSecretKey()
+    public function getSecretKey(): ?string
     {
         return $this->getParameter('secretKey');
     }
@@ -75,53 +76,60 @@ class Gateway extends AbstractGateway
     /**
      * @return string
      */
-    public function getReturnUrl()
+    public function getReturnUrl(): ?string
     {
         return $this->getParameter('returnUrl');
     }
 
     /**
      * @param string $value
-     * @return Gateway
+     * @return self
      */
-    public function setApiKey(string $value)
+    public function setApiKey(string $value): self
     {
         return $this->setParameter('apiKey', $value);
     }
 
     /**
      * @param string $value
-     * @return Gateway
+     * @return self
      */
-    public function setSecretKey(string $value)
+    public function setSecretKey(string $value): self
     {
         return $this->setParameter('secretKey', $value);
     }
 
     /**
      * @param string $value
-     * @return $this
+     * @return self
      */
-    public function setReturnUrl(string $value)
+    public function setReturnUrl(string $value): self
     {
         return $this->setParameter('returnUrl', $value);
     }
 
     /**
-     * @param array $parameters
-     * @return AbstractRequest|RequestInterface
+     * @inheritDoc
      */
-    public function purchase(array $parameters = [])
+    public function purchase(array $options = []): RequestInterface
     {
-        return $this->createRequest(CreateOrderRequest::class, $parameters);
+        return $this->createRequest(CreateOrderRequest::class, $options);
     }
 
     /**
-     * @param array $parameters
-     * @return AbstractRequest|RequestInterface
+     * @inheritDoc
      */
-    public function completePurchase(array $parameters = [])
+    public function completePurchase(array $options = []): RequestInterface
     {
-        return $this->createRequest(VerifyOrderRequest::class, $parameters);
+        return $this->createRequest(VerifyOrderRequest::class, $options);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function fetchTransaction(array $options = []): RequestInterface
+    {
+        return $this->createRequest(InquiryOrderRequest::class, $options);
+    }
+
 }

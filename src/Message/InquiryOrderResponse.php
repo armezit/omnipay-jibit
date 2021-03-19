@@ -14,6 +14,15 @@ class InquiryOrderResponse extends AbstractResponse
 {
 
     /**
+     * Return order status; possible values: SUCCESS, FAILED, UNKNOWN, EXPIRED, IN_PROGRESS
+     * @return string
+     */
+    public function getStatus(): string
+    {
+        return $this->data['status'];
+    }
+
+    /**
      * @inheritDoc
      */
     public function isSuccessful()
@@ -22,12 +31,19 @@ class InquiryOrderResponse extends AbstractResponse
     }
 
     /**
-     * Return order status; possible values: SUCCESS, FAILED, UNKNOWN, EXPIRED, IN_PROGRESS
-     * @return string
+     * @inheritDoc
      */
-    public function getStatus(): string
+    public function isCancelled()
     {
-        return $this->data['status'];
+        return $this->getCode() === 200 && in_array($this->data['status'], ['FAILED', 'EXPIRED'], true);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isPending()
+    {
+        return $this->getCode() === 200 && in_array($this->data['status'], ['UNKNOWN', 'IN_PROGRESS'], true);
     }
 
 }
