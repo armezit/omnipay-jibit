@@ -78,7 +78,7 @@ class VerifyOrderRequest extends AbstractRequest
      */
     public function validate(...$args)
     {
-        parent::validate($args);
+        parent::validate(...$args);
 
         // verify callback params returned from payment gateway
         if ($this->getState() !== 'SUCCESSFUL') {
