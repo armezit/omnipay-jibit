@@ -2,13 +2,6 @@
 
 **Jibit driver for the Omnipay PHP payment processing library**
 
-[![Packagist Version](https://img.shields.io/packagist/v/armezit/omnipay-jibit.svg)][1]
-[![PHP from Packagist](https://img.shields.io/packagist/php-v/armezit/omnipay-jibit.svg)][1]
-[![Travis (.com) branch](https://img.shields.io/travis/com/armezit/omnipay-jibit/master.svg)][3]
-[![Codecov](https://img.shields.io/codecov/c/gh/armezit/omnipay-jibit.svg)][4]
-[![Packagist](https://img.shields.io/packagist/l/armezit/omnipay-jibit.svg)][2]
-[![Twitter: armezit](https://img.shields.io/twitter/follow/armezit.svg?style=flat)][7]
-
 [Omnipay](https://github.com/thephpleague/omnipay) is a framework agnostic, multi-gateway payment
 processing library for PHP. This package implements Jibit support for Omnipay.
 
@@ -40,17 +33,22 @@ The result will be a redirect to the gateway or bank.
 use Omnipay\Omnipay;
 
 $gateway = Omnipay::create('Jibit');
-$gateway->setMerchantId('xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx');
+$gateway->setApiKey('API_KEY');
+$gateway->setSecretKey('SECRET_KEY');
 $gateway->setReturnUrl('https://www.example.com/return');
 
 // Send purchase request
 $response = $gateway->purchase([
-    'amount' => 100,
-    'description' => 'Some description'
+    'amount' => $amount,
+    'currency' => $currency,
+    'transactionId' => $transactionId, // referenceNumber in Jibit api doc
+    'userId' => $userId, // userIdentifier in Jibit api doc
 ])->send();
 
 // Process response
-if ($response->isRedirect()) {
+if ($response->isSuccessful() && $response->isRedirect()) {
+    // store the order identifier to use in completePurchase()
+    $orderIdentifier = $response->getTransactionReference();
     // Redirect to offsite payment gateway
     $response->redirect();
 } else {
@@ -59,6 +57,8 @@ if ($response->isRedirect()) {
 }
 ```
 
+### Complete Purchase (Verify)
+
 On return, the usual completePurchase will provide the result of the transaction attempt.
 
 The final result includes the following methods to inspect additional details:
@@ -66,17 +66,44 @@ The final result includes the following methods to inspect additional details:
 ```php
 // Send purchase complete request
 $response = $gateway->completePurchase([
-    'amount' => 100,
-    'authority' => $_REQUEST['Authority'], 
-)->send();
+    'transactionReference' => $orderIdentifier, 
+])->send();
 
 // Process response
-if ($response->isSuccessful()) {
-    // Payment was successful
-    print_r($response);
-} else {
+if ($response->isPending()) {
+    // In case of pending, you must inquiry the order later
+    return;
+}
+
+if (!$response->isSuccessful() || $response->isCancelled()) {
     // Payment failed: display message to customer
     echo $response->getMessage();
+} else {
+    // Payment was successful
+    print_r($response);
+}
+```
+
+### Inquiry Order
+
+Inquiry an order by the orderIdentifier:
+
+```php
+$response = $gateway->fetchTransaction([
+    'transactionReference' => $orderIdentifier,
+])->send();
+
+if ($response->isPending()) {
+    // In case of pending, you must inquiry the order later
+    return;
+}
+
+if ($response->isCancelled()) {
+    // Payment failed: display message to customer
+    echo $response->getMessage();
+} else if ($response->isSuccessful()) {
+    // Payment was successful
+    print_r($response);
 }
 ```
 
@@ -98,11 +125,3 @@ you can subscribe to.
 
 If you believe you have found a bug, please report it using the [GitHub issue tracker](https://github.com/armezit/omnipay-jibit/issues),
 or better yet, fork the library and submit a pull request.
-
-[1]: https://packagist.org/packages/armezit/omnipay-jibit
-[2]: https://github.com/armezit/omnipay-jibit/blob/master/LICENSE
-[3]: https://travis-ci.com/armezit/omnipay-jibit
-[4]: https://codecov.io/gh/armezit/omnipay-jibit
-[5]: https://packagist.org/providers/php-http/client-implementation
-[6]: https://jibit.ir
-
