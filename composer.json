@@ -11,6 +11,7 @@
         "jibit"
     ],
     "homepage": "https://github.com/armezit/omnipay-jibit",
+    "version": "1.0.2",
     "license": "MIT",
     "authors": [
         {
@@ -22,11 +23,17 @@
         "psr-4": { "Omnipay\\Jibit\\" : "src/" }
     },
     "require": {
+        "php": "^7.2",
+        "ext-json": "*",
         "omnipay/common": "^3"
     },
     "require-dev": {
         "omnipay/tests": "^3",
         "squizlabs/php_codesniffer": "^3"
     },
-    "prefer-stable": true
+    "prefer-stable": true,
+    "minimum-stability": "stable",
+    "scripts": {
+        "lint": "phpcs"
+    }
 }
