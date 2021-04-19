@@ -2,6 +2,10 @@
 
 **Jibit driver for the Omnipay PHP payment processing library**
 
+![Packagist Version](https://img.shields.io/packagist/v/armezit/omnipay-jibit.svg)
+![PHP from Packagist](https://img.shields.io/packagist/php-v/armezit/omnipay-jibit.svg)
+![Packagist](https://img.shields.io/packagist/l/armezit/omnipay-jibit.svg)
+
 [Omnipay](https://github.com/thephpleague/omnipay) is a framework agnostic, multi-gateway payment
 processing library for PHP. This package implements Jibit support for Omnipay.
 
