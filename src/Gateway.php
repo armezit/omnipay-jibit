@@ -8,7 +8,6 @@
 namespace Omnipay\Jibit;
 
 use Omnipay\Common\AbstractGateway;
-use Omnipay\Common\Message\AbstractRequest;
 use Omnipay\Common\Message\RequestInterface;
 use Omnipay\Jibit\Cache;
 use Omnipay\Jibit\Message\InquiryOrderRequest;
