@@ -2,6 +2,8 @@
 
 namespace Omnipay\Jibit;
 
+use Exception;
+
 /**
  * Simple Cache class
  * API Documentation: https://github.com/cosenary/Simple-PHP-Cache
@@ -40,19 +42,17 @@ class Cache
     /**
      * Default constructor
      *
-     * @param string|array [optional] $config
+     * @param string|array $config
      * @return void
      */
-    public function __construct($config = null)
+    public function __construct($config)
     {
-        if (true === isset($config)) {
-            if (is_string($config)) {
-                $this->setCache($config);
-            } else if (is_array($config)) {
-                $this->setCache($config['name']);
-                $this->setCachePath($config['path']);
-                $this->setExtension($config['extension']);
-            }
+        if (is_string($config)) {
+            $this->setCache($config);
+        } else if (is_array($config)) {
+            $this->setCache($config['name']);
+            $this->setCachePath($config['path']);
+            $this->setExtension($config['extension']);
         }
     }
 
@@ -72,7 +72,7 @@ class Cache
      * Check whether data accociated with a key
      *
      * @param string $key
-     * @return boolean
+     * @return bool
      */
     public function isCached($key)
     {
@@ -80,6 +80,7 @@ class Cache
             $cachedData = $this->_loadCache();
             return isset($cachedData[$key]['data']);
         }
+        return false;
     }
 
     /**
@@ -90,8 +91,11 @@ class Cache
     private function _loadCache()
     {
         if (true === file_exists($this->getCacheDir())) {
-            $file = file_get_contents($this->getCacheDir());
-            return json_decode($file, true);
+            $content = file_get_contents($this->getCacheDir());
+            if (!is_string($$content)) {
+                return false;
+            }
+            return json_decode($$content, true);
         } else {
             return false;
         }
@@ -104,17 +108,23 @@ class Cache
      */
     public function getCacheDir()
     {
+        $fallbackCacheDir = '/tmp';
+
         if (true === $this->_checkCacheDir()) {
             $filename = $this->getCache();
             $filename = preg_replace('/[^0-9a-z\.\_\-]/i', '', strtolower($filename));
+            if ($filename === null) {
+                return $fallbackCacheDir;
+            }
             return $this->getCachePath() . $this->_getHash($filename) . $this->getExtension();
         }
+        return $fallbackCacheDir;
     }
 
     /**
      * Check if a writable cache directory exists and if not create a new one
      *
-     * @return boolean
+     * @return bool
      */
     private function _checkCacheDir()
     {
@@ -153,7 +163,7 @@ class Cache
     /**
      * Cache name Getter
      *
-     * @return void
+     * @return string
      */
     public function getCache()
     {
@@ -163,6 +173,7 @@ class Cache
     /**
      * Get the filename hash
      *
+     * @param string $filename
      * @return string
      */
     private function _getHash($filename)
@@ -197,7 +208,7 @@ class Cache
      *
      * @param string $key
      * @param mixed $data
-     * @param integer [optional] $expiration
+     * @param int $expiration
      * @return object
      */
     public function store($key, $data, $expiration = 0)
@@ -222,21 +233,23 @@ class Cache
      * Retrieve cached data by its key
      *
      * @param string $key
-     * @param boolean [optional] $timestamp
-     * @return string
+     * @param bool $timestamp
+     * @return string|null
      */
-    public function retrieve($key, $timestamp = false)
+    public function retrieve($key, $timestamp = false): ?string
     {
         $cachedData = $this->_loadCache();
         (false === $timestamp) ? $type = 'data' : $type = 'time';
-        if (!isset($cachedData[$key][$type])) return null;
+        if (!isset($cachedData[$key][$type])) {
+            return null;
+        }
         return unserialize($cachedData[$key][$type]);
     }
 
     /**
      * Retrieve all cached data
      *
-     * @param boolean [optional] $meta
+     * @param bool $meta
      * @return array
      */
     public function retrieveAll($meta = false)
@@ -279,7 +292,7 @@ class Cache
     /**
      * Erase all expired entries
      *
-     * @return integer
+     * @return int
      */
     public function eraseExpired()
     {
@@ -298,14 +311,15 @@ class Cache
             }
             return $counter;
         }
+        return 0;
     }
 
     /**
      * Check whether a timestamp is still in the duration
      *
-     * @param integer $timestamp
-     * @param integer $expiration
-     * @return boolean
+     * @param int $timestamp
+     * @param int $expiration
+     * @return bool
      */
     private function _checkExpired($timestamp, $expiration)
     {
@@ -327,7 +341,9 @@ class Cache
         $cacheDir = $this->getCacheDir();
         if (true === file_exists($cacheDir)) {
             $cacheFile = fopen($cacheDir, 'w');
-            fclose($cacheFile);
+            if (is_resource($cacheFile)) {
+                fclose($cacheFile);
+            }
         }
         return $this;
     }

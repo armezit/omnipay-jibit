@@ -8,11 +8,11 @@
 namespace Omnipay\Jibit\Message;
 
 use Exception;
+use RuntimeException;
 use Omnipay\Common\Exception\InvalidRequestException;
 use Omnipay\Common\Exception\InvalidResponseException;
 use Omnipay\Common\Message\ResponseInterface;
 use Omnipay\Jibit\Cache;
-use Omnipay\Jibit\Gateway;
 
 /**
  * Class AbstractRequest
@@ -92,7 +92,7 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
     {
         $value = parent::getAmount();
         $value = $value ?: $this->httpRequest->query->get('Amount');
-        return $value;
+        return (string)$value;
     }
 
     /**
@@ -105,7 +105,7 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
 
     /**
      * @param Cache $cache
-     * @return self
+     * @return static
      */
     public function setCache(Cache $cache)
     {
@@ -114,7 +114,7 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
 
     /**
      * @param string $value
-     * @return Gateway
+     * @return static
      */
     public function setApiKey(string $value)
     {
@@ -123,7 +123,7 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
 
     /**
      * @param string $value
-     * @return Gateway
+     * @return static
      */
     public function setSecretKey(string $value)
     {
@@ -132,7 +132,7 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
 
     /**
      * @param string $accessToken
-     * @return self
+     * @return static
      */
     public function setAccessToken(string $accessToken)
     {
@@ -141,7 +141,7 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
 
     /**
      * @param string $refreshToken
-     * @return self
+     * @return static
      */
     public function setRefreshToken(string $refreshToken)
     {
@@ -150,7 +150,7 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
 
     /**
      * @param mixed $userId
-     * @return self
+     * @return static
      */
     public function setUserId($userId)
     {
@@ -180,12 +180,15 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
         $cache->eraseExpired();
 
         if ($isForce === false && $cache->isCached('accessToken')) {
-            return $this->setAccessToken($cache->retrieve('accessToken'));
+            $accessToken = $cache->retrieve('accessToken');
+            if ($accessToken !== null) {
+                $this->setAccessToken($accessToken);
+                return $accessToken;
+            }
         }
 
         if ($cache->isCached('refreshToken')) {
-            $refreshToken = $this->refreshTokens();
-            if ($refreshToken !== 'ok') {
+            if (!$this->refreshTokens()) {
                 return $this->generateNewToken();
             }
         }
@@ -193,11 +196,33 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
         return $this->generateNewToken();
     }
 
+    /**
+     * Refresh access token
+     *
+     * @return bool
+     * @throws RuntimeException
+     * @throws InvalidResponseException
+     */
     private function refreshTokens()
     {
         $cache = $this->getCache();
 
         try {
+            $accessToken = $cache->retrieve('accessToken');
+
+            if ($accessToken === null) {
+                throw new RuntimeException('Err in access token.');
+            }
+
+            $body = json_encode([
+                'accessToken' => str_replace('Bearer ', '', $accessToken),
+                'refreshToken' => $cache->retrieve('refreshToken'),
+            ]);
+
+            if ($body === false) {
+                throw new RuntimeException('Err in access/refresh token.');
+            }
+
             $httpResponse = $this->httpClient->request(
                 'POST',
                 $this->getEndpoint() . '/tokens/refresh',
@@ -205,23 +230,20 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
                     'Accept' => 'application/json',
                     'Content-type' => 'application/json',
                 ],
-                json_encode([
-                    'accessToken' => str_replace('Bearer ', '', $cache->retrieve('accessToken')),
-                    'refreshToken' => $cache->retrieve('refreshToken'),
-                ])
+                $body
             );
             $json = $httpResponse->getBody()->getContents();
             $result = !empty($json) ? json_decode($json, true) : [];
 
             if (empty($result['accessToken'])) {
-                throw new \RuntimeException('Err in refresh token.');
+                throw new RuntimeException('Err in refresh token.');
             }
 
             $cache->store('accessToken', 'Bearer ' . $result['accessToken'], 24 * 60 * 60 - 60);
             $cache->store('refreshToken', $result['refreshToken'], 48 * 60 * 60 - 60);
             $this->setAccessToken('Bearer ' . $result['accessToken']);
             $this->setRefreshToken($result['refreshToken']);
-            return 'ok';
+            return true;
 
         } catch (Exception $e) {
             throw new InvalidResponseException(
@@ -231,9 +253,23 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
         }
     }
 
+    /**
+     * Generate new access token
+     *
+     * @return string
+     */
     private function generateNewToken()
     {
         try {
+            $body = json_encode([
+                'apiKey' => $this->getParameter('apiKey'),
+                'secretKey' => $this->getParameter('secretKey'),
+            ]);
+
+            if ($body === false) {
+                throw new RuntimeException('Err in access token.');
+            }
+
             $httpResponse = $this->httpClient->request(
                 'POST',
                 $this->getEndpoint() . '/tokens/generate',
@@ -241,11 +277,9 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
                     'Accept' => 'application/json',
                     'Content-type' => 'application/json',
                 ],
-                json_encode([
-                    'apiKey' => $this->getParameter('apiKey'),
-                    'secretKey' => $this->getParameter('secretKey'),
-                ])
+                $body
             );
+
             $json = $httpResponse->getBody()->getContents();
             $result = !empty($json) ? json_decode($json, true) : [];
 
@@ -281,6 +315,12 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
         $accessToken = $this->getAccessToken();
 
         try {
+            $body = json_encode($data);
+
+            if ($body === false) {
+                throw new RuntimeException('Err while json encoding data.');
+            }
+
             $httpResponse = $this->httpClient->request(
                 $this->getHttpMethod(),
                 $this->createUri($this->getEndpoint()),
@@ -289,8 +329,9 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
                     'Content-type' => 'application/json',
                     'Authorization' => $accessToken,
                 ],
-                json_encode($data)
+                $body
             );
+            
             $json = $httpResponse->getBody()->getContents();
             $result = !empty($json) ? json_decode($json, true) : [];
             $result['httpStatus'] = $httpResponse->getStatusCode();

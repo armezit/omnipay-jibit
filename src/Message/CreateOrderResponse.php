@@ -20,7 +20,7 @@ class CreateOrderResponse extends AbstractResponse implements RedirectResponseIn
      */
     public function isSuccessful()
     {
-        return $this->getCode() === 200;
+        return (int)$this->getCode() === 200;
     }
 
     /**

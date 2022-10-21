@@ -74,7 +74,9 @@ class VerifyOrderRequest extends AbstractRequest
     }
 
     /**
-     * @inheritDoc
+     * @param array|string ...$args a variable length list of required parameters
+     * @return void
+     * @throws InvalidRequestException
      */
     public function validate(...$args)
     {

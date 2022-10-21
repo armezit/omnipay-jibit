@@ -18,7 +18,9 @@ class VerifyOrderResponse extends AbstractResponse
      */
     public function getTransactionReference()
     {
-        return $this->request->getTransactionReference();
+        /** @var VerifyOrderRequest $request */
+        $request = $this->request;
+        return $request->getTransactionReference();
     }
 
     /**
@@ -26,7 +28,7 @@ class VerifyOrderResponse extends AbstractResponse
      */
     public function isSuccessful()
     {
-        return $this->getCode() === 200 && $this->data['status'] === 'Successful';
+        return (int)$this->getCode() === 200 && $this->data['status'] === 'Successful';
     }
 
     /**
@@ -34,7 +36,7 @@ class VerifyOrderResponse extends AbstractResponse
      */
     public function isCancelled()
     {
-        return $this->getCode() === 200 && $this->data['status'] === 'Failed';
+        return (int)$this->getCode() === 200 && $this->data['status'] === 'Failed';
     }
 
     /**
@@ -43,7 +45,7 @@ class VerifyOrderResponse extends AbstractResponse
      */
     public function isPending()
     {
-        return $this->getCode() === 200 && $this->data['status'] === 'Unknown';
+        return (int)$this->getCode() === 200 && $this->data['status'] === 'Unknown';
     }
 
 }

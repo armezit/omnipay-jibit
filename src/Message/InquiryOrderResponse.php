@@ -27,7 +27,7 @@ class InquiryOrderResponse extends AbstractResponse
      */
     public function isSuccessful()
     {
-        return $this->getCode() === 200 && $this->data['status'] === 'SUCCESS';
+        return (int)$this->getCode() === 200 && $this->data['status'] === 'SUCCESS';
     }
 
     /**
@@ -35,7 +35,7 @@ class InquiryOrderResponse extends AbstractResponse
      */
     public function isCancelled()
     {
-        return $this->getCode() === 200 && in_array($this->data['status'], ['FAILED', 'EXPIRED'], true);
+        return (int)$this->getCode() === 200 && in_array($this->data['status'], ['FAILED', 'EXPIRED'], true);
     }
 
     /**
@@ -43,7 +43,7 @@ class InquiryOrderResponse extends AbstractResponse
      */
     public function isPending()
     {
-        return $this->getCode() === 200 && in_array($this->data['status'], ['UNKNOWN', 'IN_PROGRESS'], true);
+        return (int)$this->getCode() === 200 && in_array($this->data['status'], ['UNKNOWN', 'IN_PROGRESS'], true);
     }
 
 }

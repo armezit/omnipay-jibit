@@ -1,4 +1,10 @@
-.idea/
-vendor/
-composer.lock
+.idea
+.build
 src/storage/
+
+vendor
+composer.lock
+
+phpcs.xml
+phpstan.neon
+phpunit.xml
