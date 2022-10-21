@@ -109,7 +109,8 @@ class Gateway extends AbstractGateway
     }
 
     /**
-     * @inheritDoc
+     * @param $options Extra options of the create order request
+     * @return CreateOrderRequest
      */
     public function purchase(array $options = []): RequestInterface
     {
@@ -117,7 +118,8 @@ class Gateway extends AbstractGateway
     }
 
     /**
-     * @inheritDoc
+     * @param array $options Extra options of the verify order request
+     * @return VerifyOrderRequest
      */
     public function completePurchase(array $options = []): RequestInterface
     {
@@ -125,7 +127,8 @@ class Gateway extends AbstractGateway
     }
 
     /**
-     * @inheritDoc
+     * @param array $options Extra options of the inquiry order request
+     * @return InquiryOrderRequest
      */
     public function fetchTransaction(array $options = []): RequestInterface
     {
