@@ -131,5 +131,4 @@ class Gateway extends AbstractGateway
     {
         return $this->createRequest(InquiryOrderRequest::class, $options);
     }
-
 }

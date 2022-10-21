@@ -19,7 +19,6 @@ use Omnipay\Jibit\Cache;
  */
 abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
 {
-
     /**
      * Live Endpoint URL
      *
@@ -244,7 +243,6 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
             $this->setAccessToken('Bearer ' . $result['accessToken']);
             $this->setRefreshToken($result['refreshToken']);
             return true;
-
         } catch (Exception $e) {
             throw new InvalidResponseException(
                 'Error communicating with payment gateway: ' . $e->getMessage(),
@@ -293,7 +291,6 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
             $this->setAccessToken('Bearer ' . $result['accessToken']);
             $this->setRefreshToken($result['refreshToken']);
             return 'ok';
-
         } catch (Exception $e) {
             throw new InvalidResponseException(
                 'Error communicating with payment gateway: ' . $e->getMessage(),
@@ -331,7 +328,7 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
                 ],
                 $body
             );
-            
+
             $json = $httpResponse->getBody()->getContents();
             $result = !empty($json) ? json_decode($json, true) : [];
             $result['httpStatus'] = $httpResponse->getStatusCode();
@@ -347,7 +344,6 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
             }
 
             return $this->response = $this->createResponse($result);
-
         } catch (Exception $e) {
             throw new InvalidResponseException(
                 'Error communicating with payment gateway: ' . $e->getMessage(),
@@ -355,5 +351,4 @@ abstract class AbstractRequest extends \Omnipay\Common\Message\AbstractRequest
             );
         }
     }
-
 }

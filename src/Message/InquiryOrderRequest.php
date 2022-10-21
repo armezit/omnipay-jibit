@@ -14,7 +14,6 @@ use Omnipay\Common\Exception\InvalidRequestException;
  */
 class InquiryOrderRequest extends AbstractRequest
 {
-
     /**
      * @inheritDoc
      */

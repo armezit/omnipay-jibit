@@ -3,7 +3,7 @@
     <description>Omnipay Jibit</description>
 
     <!-- What to scan -->
-    <file>.</file>
+    <file>./src</file>
 
     <!-- Show sniff and progress -->
     <arg value="sp"/>
@@ -19,13 +19,7 @@
     <arg name="extensions" value="php"/>
 
     <!-- Exclude the test data and fixtures. -->
-    <exclude-pattern>/tests/*</exclude-pattern>
-
-    <!-- Exclude the Composer Vendor directory. -->
-    <exclude-pattern>/vendor/*</exclude-pattern>
-
-    <!-- Exclude the Node Modules directory. -->
-    <exclude-pattern>/node_modules/*</exclude-pattern>
+    <exclude-pattern>/storage</exclude-pattern>
 
     <rule ref="PSR12"/>
 
@@ -34,21 +28,4 @@
             <property name="spacing" value="1"/>
         </properties>
     </rule>
-
-    <rule ref="Squiz.Commenting.FileComment">
-        <exclude name="Squiz.Commenting.FileComment.IncorrectAuthor" />
-        <exclude name="Squiz.Commenting.FileComment.SubpackageTagOrder"/>
-        <exclude name="Squiz.Commenting.FileComment.MissingSubpackageTag"/>
-        <exclude name="Squiz.Commenting.FileComment.SpacingAfterOpen"/>
-    </rule>
-
-    <rule ref="Squiz.Commenting.ClassComment" />
-    <rule ref="Squiz.Commenting.VariableComment" />
-
-    <rule ref="Squiz.Commenting.FunctionComment">
-        <exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
-        <exclude name="Squiz.Commenting.FunctionComment.EmptyThrows" />
-    </rule>
-
-    <rule ref="Squiz.Commenting.FunctionCommentThrowTag" />
 </ruleset>

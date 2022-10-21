@@ -17,27 +17,26 @@ use Exception;
 
 class Cache
 {
-
     /**
      * The path to the cache file folder
      *
      * @var string
      */
-    private $_cachepath = __DIR__.'/storage/';
+    private $cachepath = __DIR__ . '/storage/';
 
     /**
      * The name of the default cache file
      *
      * @var string
      */
-    private $_cachename = 'default';
+    private $cachename = 'default';
 
     /**
      * The cache file extension
      *
      * @var string
      */
-    private $_extension = '.cache';
+    private $extension = '.cache';
 
     /**
      * Default constructor
@@ -49,7 +48,7 @@ class Cache
     {
         if (is_string($config)) {
             $this->setCache($config);
-        } else if (is_array($config)) {
+        } elseif (is_array($config)) {
             $this->setCache($config['name']);
             $this->setCachePath($config['path']);
             $this->setExtension($config['extension']);
@@ -64,7 +63,7 @@ class Cache
      */
     public function setCache($name)
     {
-        $this->_cachename = $name;
+        $this->cachename = $name;
         return $this;
     }
 
@@ -76,8 +75,8 @@ class Cache
      */
     public function isCached($key)
     {
-        if (false != $this->_loadCache()) {
-            $cachedData = $this->_loadCache();
+        if (false != $this->loadCache()) {
+            $cachedData = $this->loadCache();
             return isset($cachedData[$key]['data']);
         }
         return false;
@@ -88,7 +87,7 @@ class Cache
      *
      * @return mixed
      */
-    private function _loadCache()
+    private function loadCache()
     {
         if (true === file_exists($this->getCacheDir())) {
             $content = file_get_contents($this->getCacheDir());
@@ -110,13 +109,13 @@ class Cache
     {
         $fallbackCacheDir = '/tmp';
 
-        if (true === $this->_checkCacheDir()) {
+        if (true === $this->checkCacheDir()) {
             $filename = $this->getCache();
             $filename = preg_replace('/[^0-9a-z\.\_\-]/i', '', strtolower($filename));
             if ($filename === null) {
                 return $fallbackCacheDir;
             }
-            return $this->getCachePath() . $this->_getHash($filename) . $this->getExtension();
+            return $this->getCachePath() . $this->getHash($filename) . $this->getExtension();
         }
         return $fallbackCacheDir;
     }
@@ -126,7 +125,7 @@ class Cache
      *
      * @return bool
      */
-    private function _checkCacheDir()
+    private function checkCacheDir()
     {
         if (!is_dir($this->getCachePath()) && !mkdir($this->getCachePath(), 0775, true)) {
             throw new Exception('Unable to create cache directory ' . $this->getCachePath());
@@ -145,7 +144,7 @@ class Cache
      */
     public function getCachePath()
     {
-        return $this->_cachepath;
+        return $this->cachepath;
     }
 
     /**
@@ -156,7 +155,7 @@ class Cache
      */
     public function setCachePath($path)
     {
-        $this->_cachepath = $path;
+        $this->cachepath = $path;
         return $this;
     }
 
@@ -167,7 +166,7 @@ class Cache
      */
     public function getCache()
     {
-        return $this->_cachename;
+        return $this->cachename;
     }
 
     /**
@@ -176,7 +175,7 @@ class Cache
      * @param string $filename
      * @return string
      */
-    private function _getHash($filename)
+    private function getHash($filename)
     {
         return sha1($filename);
     }
@@ -188,7 +187,7 @@ class Cache
      */
     public function getExtension()
     {
-        return $this->_extension;
+        return $this->extension;
     }
 
     /**
@@ -199,7 +198,7 @@ class Cache
      */
     public function setExtension($ext)
     {
-        $this->_extension = $ext;
+        $this->extension = $ext;
         return $this;
     }
 
@@ -218,7 +217,7 @@ class Cache
             'expire' => $expiration,
             'data' => serialize($data)
         );
-        $dataArray = $this->_loadCache();
+        $dataArray = $this->loadCache();
         if (true === is_array($dataArray)) {
             $dataArray[$key] = $storeData;
         } else {
@@ -238,7 +237,7 @@ class Cache
      */
     public function retrieve($key, $timestamp = false): ?string
     {
-        $cachedData = $this->_loadCache();
+        $cachedData = $this->loadCache();
         (false === $timestamp) ? $type = 'data' : $type = 'time';
         if (!isset($cachedData[$key][$type])) {
             return null;
@@ -256,7 +255,7 @@ class Cache
     {
         if ($meta === false) {
             $results = array();
-            $cachedData = $this->_loadCache();
+            $cachedData = $this->loadCache();
             if ($cachedData) {
                 foreach ($cachedData as $k => $v) {
                     $results[$k] = unserialize($v['data']);
@@ -264,7 +263,7 @@ class Cache
             }
             return $results;
         } else {
-            return $this->_loadCache();
+            return $this->loadCache();
         }
     }
 
@@ -276,7 +275,7 @@ class Cache
      */
     public function erase($key)
     {
-        $cacheData = $this->_loadCache();
+        $cacheData = $this->loadCache();
         if (true === is_array($cacheData)) {
             if (true === isset($cacheData[$key])) {
                 unset($cacheData[$key]);
@@ -296,11 +295,11 @@ class Cache
      */
     public function eraseExpired()
     {
-        $cacheData = $this->_loadCache();
+        $cacheData = $this->loadCache();
         if (true === is_array($cacheData)) {
             $counter = 0;
             foreach ($cacheData as $key => $entry) {
-                if (true === $this->_checkExpired($entry['time'], $entry['expire'])) {
+                if (true === $this->checkExpired($entry['time'], $entry['expire'])) {
                     unset($cacheData[$key]);
                     $counter++;
                 }
@@ -321,7 +320,7 @@ class Cache
      * @param int $expiration
      * @return bool
      */
-    private function _checkExpired($timestamp, $expiration)
+    private function checkExpired($timestamp, $expiration)
     {
         $result = false;
         if ($expiration !== 0) {
@@ -347,5 +346,4 @@ class Cache
         }
         return $this;
     }
-
 }

@@ -12,7 +12,6 @@ namespace Omnipay\Jibit\Message;
  */
 class InquiryOrderResponse extends AbstractResponse
 {
-
     /**
      * Return order status; possible values: SUCCESS, FAILED, UNKNOWN, EXPIRED, IN_PROGRESS
      * @return string
@@ -45,5 +44,4 @@ class InquiryOrderResponse extends AbstractResponse
     {
         return (int)$this->getCode() === 200 && in_array($this->data['status'], ['UNKNOWN', 'IN_PROGRESS'], true);
     }
-
 }

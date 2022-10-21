@@ -14,7 +14,6 @@ use Omnipay\Common\Message\RedirectResponseInterface;
  */
 class CreateOrderResponse extends AbstractResponse implements RedirectResponseInterface
 {
-
     /**
      * @inheritDoc
      */
@@ -54,5 +53,4 @@ class CreateOrderResponse extends AbstractResponse implements RedirectResponseIn
     {
         return $this->data['orderIdentifier'];
     }
-
 }

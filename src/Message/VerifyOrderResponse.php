@@ -12,7 +12,6 @@ namespace Omnipay\Jibit\Message;
  */
 class VerifyOrderResponse extends AbstractResponse
 {
-
     /**
      * @inheritDoc
      */
@@ -47,5 +46,4 @@ class VerifyOrderResponse extends AbstractResponse
     {
         return (int)$this->getCode() === 200 && $this->data['status'] === 'Unknown';
     }
-
 }

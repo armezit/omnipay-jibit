@@ -36,6 +36,7 @@
     "minimum-stability": "stable",
     "scripts": {
         "lint": "phpcs",
+        "phpstan": "phpstan",
         "test": "phpunit"
     }
 }

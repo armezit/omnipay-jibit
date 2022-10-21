@@ -14,7 +14,6 @@ use Omnipay\Common\Exception\InvalidRequestException;
  */
 class VerifyOrderRequest extends AbstractRequest
 {
-
     /**
      * @return string
      */
@@ -87,5 +86,4 @@ class VerifyOrderRequest extends AbstractRequest
             throw new InvalidRequestException("Payment was not successful");
         }
     }
-
 }
